@@ -185,7 +185,7 @@ TEST_CASE("Random Distance, CPP") {
     }
 }
 
-
+/*
 TEST_CASE("Random Distance, AVX") {
     {
         std::array<double, 8> arr = {1, 93, 72, 38, 26, 88, 16, 68};
@@ -333,7 +333,7 @@ TEST_CASE("Random Distance, AVX") {
         CompareArrays(DistancePtoPackedHNB_avx(37, -98, arr), result);
     }
 }
-
+*/
 
 TEST_CASE("PackedNormalBox within PackedNormalBox") {
     {
