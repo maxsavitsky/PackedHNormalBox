@@ -7,6 +7,7 @@
 #include <catch2/benchmark/catch_benchmark.hpp>
 
 TEST_CASE("Distance from Point to NormalBox") {
+
     REQUIRE(SquaredDistancePointToNormalBox_cpp(2, 0, 1, 1) == 1);
     REQUIRE(SquaredDistancePointToNormalBox_cpp(0, 2, 1, 1) == 1);
 
