@@ -1,22 +1,57 @@
 #include "PackedHNormalBox.h"
 #include <immintrin.h>
 #include <iostream>
-#include <fstream>
 
-#include <catch2/catch_test_macros.hpp>
 #include <catch2/benchmark/catch_benchmark.hpp>
+#include <catch2/catch_test_macros.hpp>
 
 TEST_CASE("Distance from Point to NormalBox") {
-    REQUIRE(SquaredDistancePointToNormalBox_cpp(2, 0, 1, 1) == 1);
-    REQUIRE(SquaredDistancePointToNormalBox_cpp(0, 2, 1, 1) == 1);
+    {
+        Point p1 = {};
+        NormalBox nb = {};
+        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 1);
+    }
+    {
+        Point p1 = {2, 0};
+        NormalBox nb = {1, 1};
+        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 1);
+    }
 
-    REQUIRE(SquaredDistancePointToNormalBox_cpp(2, 2, 1, 1) == sqrt(2));
-    REQUIRE(SquaredDistancePointToNormalBox_cpp(0, 0, 1, 1) == 1);
+    {
+        Point p1 = {0, 2};
+        NormalBox nb = {1, 1};
+        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 1);
+    }
 
-    REQUIRE(SquaredDistancePointToNormalBox_cpp(-2, 0, 1, 1) == 1);
-    REQUIRE(SquaredDistancePointToNormalBox_cpp(0, 2, 1, 1) == 1);
+    {
+        Point p1 = {2, 2};
+        NormalBox nb = {1, 1};
+        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 2);
+    }
 
-    REQUIRE(SquaredDistancePointToNormalBox_cpp(2, -2, 1, 1) == sqrt(2));
+    {
+        Point p1 = {0, 0};
+        NormalBox nb = {1, 1};
+        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 1);
+    }
+
+    {
+        Point p1 = {-2, 0};
+        NormalBox nb = {1, 1};
+        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 1);
+    }
+
+    {
+        Point p1 = {0, 2};
+        NormalBox nb = {1, 1};
+        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 1);
+    }
+
+    {
+        Point p1 = {2, -2};
+        NormalBox nb = {1, 1};
+        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 2);
+    }
 }
 
 void CompareArrays(std::array<double, 4> a, std::array<double, 4> b) {
@@ -27,161 +62,261 @@ void CompareArrays(std::array<double, 4> a, std::array<double, 4> b) {
 }
 
 TEST_CASE("Distance, CPP") {
-    std::array<double, 8> v = {1.0, 1.0, 2.0, 2.0, 1.0, 2.0, 2.0, 1.0};
-    CompareArrays(SquaredDistancePointToPackedHNormalBox_cpp(2.0, 2.0, v), {sqrt(2), 0.0, 1.0, 1.0});
+    Point p = {2, 2};
+    PackedHNormalBox packed_h_normal_box = {
+            std::array<NormalBox, 4>{NormalBox{1, 1}, NormalBox{2, 2}, NormalBox{1, 2}, NormalBox{2, 1}}};
+    CompareArrays(SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box), {2, 0.0, 1.0, 1.0});
 }
 
 TEST_CASE("Distance, AVX") {
     std::array<double, 8> v = {1.0, 20.0, 1.0, 1.0, 10.0, 20.0, 10.0, 2.0};
-    CompareArrays(SquaredDistancePointToPackedHNormalBox_cpp(3.0, 3.0, v),
-                  SquaredDistancePointToPackedHNormalBox_avx(3.0, 3.0, v));
+    Point p = {3, 3};
+    PackedHNormalBox packed_h_normal_box = {
+            std::array<NormalBox, 4>{NormalBox{1, 20}, NormalBox{1, 1}, NormalBox{10, 20}, NormalBox{10, 2}}};
+    CompareArrays(SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box),
+                  SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box));
 }
 
 TEST_CASE("Random Distance") {
     {
-        std::array<double, 8> arr = {1, 93, 72, 38, 26, 88, 16, 68};
-        CompareArrays(DistancePtoPackedHNB_avx(-16, 92, arr), DistancePtoPackedHNB_cpp(-16, 92, arr));
+        Point p = {-16, 92};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{1, 93}, NormalBox{72, 38}, NormalBox{26, 88}, NormalBox{16, 68}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {83, 4, 32, 30, 56, 41, 75, 71};
-        CompareArrays(DistancePtoPackedHNB_avx(72, -10, arr), DistancePtoPackedHNB_cpp(72, -10, arr));
+        Point p = {72, -10};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{83, 4}, NormalBox{32, 30}, NormalBox{56, 41}, NormalBox{75, 71}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {37, 15, 96, 47, 53, 29, 62, 47};
-        CompareArrays(DistancePtoPackedHNB_avx(-49, -45, arr), DistancePtoPackedHNB_cpp(-49, -45, arr));
+        Point p = {-49, -45};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{37, 15}, NormalBox{96, 47}, NormalBox{53, 29}, NormalBox{62, 47}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {11, 77, 10, 49, 58, 34, 74, 57};
-        CompareArrays(DistancePtoPackedHNB_avx(-64, -69, arr), DistancePtoPackedHNB_cpp(-64, -69, arr));
+        Point p = {-64, -69};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{11, 77}, NormalBox{10, 49}, NormalBox{58, 34}, NormalBox{74, 57}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {83, 3, 81, 28, 82, 68, 92, 35};
-        CompareArrays(DistancePtoPackedHNB_avx(-69, 27, arr), DistancePtoPackedHNB_cpp(-69, 27, arr));
+        Point p = {-69, 27};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{83, 3}, NormalBox{81, 28}, NormalBox{82, 68}, NormalBox{92, 35}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {30, 97, 57, 58, 86, 50, 15, 29};
-        CompareArrays(DistancePtoPackedHNB_avx(-56, 39, arr), DistancePtoPackedHNB_cpp(-56, 39, arr));
+        Point p = {-56, 39};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{30, 97}, NormalBox{57, 58}, NormalBox{86, 50}, NormalBox{15, 29}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {29, 61, 39, 30, 3, 75, 45, 39};
-        CompareArrays(DistancePtoPackedHNB_avx(-93, 96, arr), DistancePtoPackedHNB_cpp(-93, 96, arr));
+        Point p = {-93, 96};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{29, 61}, NormalBox{39, 30}, NormalBox{3, 75}, NormalBox{45, 39}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {91, 75, 40, 60, 9, 19, 41, 5};
-        CompareArrays(DistancePtoPackedHNB_avx(-91, 99, arr), DistancePtoPackedHNB_cpp(-91, 99, arr));
+        Point p = {-91, 99};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{91, 75}, NormalBox{40, 60}, NormalBox{9, 19}, NormalBox{41, 5}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {35, 66, 20, 94, 67, 3, 27, 47};
-        CompareArrays(DistancePtoPackedHNB_avx(-3, -88, arr), DistancePtoPackedHNB_cpp(-3, -88, arr));
+        Point p = {-3, -88};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{35, 66}, NormalBox{20, 94}, NormalBox{67, 3}, NormalBox{27, 47}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {26, 15, 31, 13, 62, 44, 86, 15};
-        CompareArrays(DistancePtoPackedHNB_avx(-48, 97, arr), DistancePtoPackedHNB_cpp(-48, 97, arr));
+        Point p = {-48, 97};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{26, 15}, NormalBox{31, 13}, NormalBox{62, 44}, NormalBox{86, 15}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {35, 63, 95, 12, 30, 47, 95, 79};
-        CompareArrays(DistancePtoPackedHNB_avx(65, 55, arr), DistancePtoPackedHNB_cpp(65, 55, arr));
+        Point p = {65, 55};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{35, 63}, NormalBox{95, 12}, NormalBox{30, 47}, NormalBox{95, 79}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {81, 83, 12, 99, 11, 90, 80, 26};
-        CompareArrays(DistancePtoPackedHNB_avx(90, 46, arr), DistancePtoPackedHNB_cpp(90, 46, arr));
+        Point p = {90, 46};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{81, 83}, NormalBox{12, 99}, NormalBox{11, 90}, NormalBox{80, 26}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {12, 79, 96, 67, 55, 15, 37, 10};
-        CompareArrays(DistancePtoPackedHNB_avx(79, 91, arr), DistancePtoPackedHNB_cpp(79, 91, arr));
+        Point p = {79, 91};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{12, 79}, NormalBox{96, 67}, NormalBox{55, 15}, NormalBox{37, 10}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {56, 50, 50, 25, 18, 91, 4, 53};
-        CompareArrays(DistancePtoPackedHNB_avx(-82, -3, arr), DistancePtoPackedHNB_cpp(-82, -3, arr));
+        Point p = {-82, -3};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{56, 50}, NormalBox{50, 25}, NormalBox{18, 91}, NormalBox{4, 53}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {47, 36, 50, 58, 93, 50, 81, 69};
-        CompareArrays(DistancePtoPackedHNB_avx(-45, -40, arr), DistancePtoPackedHNB_cpp(-45, -40, arr));
+        Point p = {-45, -40};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{47, 36}, NormalBox{50, 58}, NormalBox{93, 50}, NormalBox{81, 69}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {77, 86, 57, 65, 37, 36, 75, 34};
-        CompareArrays(DistancePtoPackedHNB_avx(98, 84, arr), DistancePtoPackedHNB_cpp(98, 84, arr));
+        Point p = {98, 84};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{77, 86}, NormalBox{57, 65}, NormalBox{37, 36}, NormalBox{75, 34}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {21, 4, 38, 7, 58, 69, 5, 32};
-        CompareArrays(DistancePtoPackedHNB_avx(-45, -19, arr), DistancePtoPackedHNB_cpp(-45, -19, arr));
+        Point p = {-45, -19};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{21, 4}, NormalBox{38, 7}, NormalBox{58, 69}, NormalBox{5, 32}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {23, 61, 34, 3, 78, 33, 4, 16};
-        CompareArrays(DistancePtoPackedHNB_avx(-86, -74, arr), DistancePtoPackedHNB_cpp(-86, -74, arr));
+        Point p = {-86, -74};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{23, 61}, NormalBox{34, 3}, NormalBox{78, 33}, NormalBox{4, 16}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {50, 13, 70, 38, 45, 32, 78, 92};
-        CompareArrays(DistancePtoPackedHNB_avx(-24, 86, arr), DistancePtoPackedHNB_cpp(-24, 86, arr));
+        Point p = {-24, 86};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{50, 13}, NormalBox{70, 38}, NormalBox{45, 32}, NormalBox{78, 92}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {29, 13, 64, 36, 21, 60, 26, 11};
-        CompareArrays(DistancePtoPackedHNB_avx(23, -86, arr), DistancePtoPackedHNB_cpp(23, -86, arr));
+        Point p = {23, -86};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{29, 13}, NormalBox{64, 36}, NormalBox{21, 60}, NormalBox{26, 11}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {78, 42, 11, 29, 58, 77, 34, 13};
-        CompareArrays(DistancePtoPackedHNB_avx(13, -67, arr), DistancePtoPackedHNB_cpp(13, -67, arr));
+        Point p = {13, -67};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{78, 42}, NormalBox{11, 29}, NormalBox{58, 77}, NormalBox{34, 13}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {75, 28, 56, 54, 40, 44, 11, 6};
-        CompareArrays(DistancePtoPackedHNB_avx(-7, 82, arr), DistancePtoPackedHNB_cpp(-7, 82, arr));
+        Point p = {-7, 82};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{75, 28}, NormalBox{56, 54}, NormalBox{40, 44}, NormalBox{11, 6}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {71, 72, 26, 69, 21, 79, 51, 39};
-        CompareArrays(DistancePtoPackedHNB_avx(32, 96, arr), DistancePtoPackedHNB_cpp(32, 96, arr));
+        Point p = {32, 96};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{71, 72}, NormalBox{26, 69}, NormalBox{21, 79}, NormalBox{51, 39}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {27, 84, 25, 42, 63, 37, 43, 51};
-        CompareArrays(DistancePtoPackedHNB_avx(-31, 76, arr), DistancePtoPackedHNB_cpp(-31, 76, arr));
+        Point p = {-31, 76};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{27, 84}, NormalBox{25, 42}, NormalBox{63, 37}, NormalBox{43, 51}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {12, 52, 59, 7, 1, 5, 15, 19};
-        CompareArrays(DistancePtoPackedHNB_avx(-81, -18, arr), DistancePtoPackedHNB_cpp(-81, -18, arr));
+        Point p = {-81, -18};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{12, 52}, NormalBox{59, 7}, NormalBox{1, 5}, NormalBox{15, 19}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {42, 21, 95, 51, 42, 92, 80, 58};
-        CompareArrays(DistancePtoPackedHNB_avx(67, -68, arr), DistancePtoPackedHNB_cpp(67, -68, arr));
+        Point p = {67, -68};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{42, 21}, NormalBox{95, 51}, NormalBox{42, 92}, NormalBox{80, 58}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {62, 5, 15, 81, 55, 14, 43, 29};
-        CompareArrays(DistancePtoPackedHNB_avx(-42, 56, arr), DistancePtoPackedHNB_cpp(-42, 56, arr));
+        Point p = {-42, 56};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{62, 5}, NormalBox{15, 81}, NormalBox{55, 14}, NormalBox{43, 29}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {7, 78, 52, 63, 67, 33, 5, 23};
-        CompareArrays(DistancePtoPackedHNB_avx(-3, -78, arr), DistancePtoPackedHNB_cpp(-3, -78, arr));
+        Point p = {-3, -78};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{7, 78}, NormalBox{52, 63}, NormalBox{67, 33}, NormalBox{5, 23}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
     {
-        std::array<double, 8> arr = {86, 52, 5, 10, 74, 59, 29, 65};
-        CompareArrays(DistancePtoPackedHNB_avx(37, -98, arr), DistancePtoPackedHNB_cpp(37, -98, arr));
+        Point p = {37, -98};
+        PackedHNormalBox packed_h_normal_box = {
+                std::array<NormalBox, 4>{NormalBox{86, 52}, NormalBox{5, 10}, NormalBox{74, 59}, NormalBox{29, 65}}};
+        CompareArrays(SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box),
+                      SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box));
     }
 }
 
 TEST_CASE("PackedNormalBox within PackedNormalBox") {
     {
-        std::array<double, 8> v1 = {9, 24, 5, 11, 14, 19, 10, 24};
-        std::array<double, 8> v2 = {17, 22, 15, 14, 19, 7, 23, 12};
-        REQUIRE(0b0010 == PackedHNormalBoxWithinPackedHNormalBox_cpp(v1, v2));
+        PackedHNormalBox packed_h_normal_box1 = {
+                std::array<NormalBox, 4>{NormalBox{9, 24}, NormalBox{5, 11}, NormalBox{14, 19}, NormalBox{10, 24}}};
+        PackedHNormalBox packed_h_normal_box2 = {
+                std::array<NormalBox, 4>{NormalBox{17, 22}, NormalBox{15, 14}, NormalBox{19, 7}, NormalBox{23, 12}}};
+        REQUIRE(0b0010 == PackedHNormalBoxWithinPackedHNormalBox_cpp(packed_h_normal_box1, packed_h_normal_box2));
     }
 
     {
-        std::array<double, 8> v1 = {4, 19, 6, 2, 11, 3, 1, 4};
-        std::array<double, 8> v2 = {10, 16, 18, 15, 12, 16, 4, 13};
-        REQUIRE(0b1110 == PackedHNormalBoxWithinPackedHNormalBox_cpp(v1, v2));
+        PackedHNormalBox packed_h_normal_box1 = {
+                std::array<NormalBox, 4>{NormalBox{4, 19}, NormalBox{6, 2}, NormalBox{11, 3}, NormalBox{1, 4}}};
+        PackedHNormalBox packed_h_normal_box2 = {
+                std::array<NormalBox, 4>{NormalBox{10, 16}, NormalBox{18, 15}, NormalBox{12, 16}, NormalBox{4, 23}}};
+        REQUIRE(0b1110 == PackedHNormalBoxWithinPackedHNormalBox_cpp(packed_h_normal_box1, packed_h_normal_box2));
     }
 }
 
 TEST_CASE("PackedNormalBox within PackedNormalBox (AVX)") {
     {
-        std::array<double, 8> v1 = {9, 24, 5, 11, 14, 19, 10, 24};
-        std::array<double, 8>  v2 = {17, 22, 15, 14, 19, 7, 23, 12};
-        REQUIRE(PackedHNormalBoxWithinPackedHNormalBox_cpp(v1, v2) ==
-                        PackedHNormalBoxWithinPackedHNormalBox_avx(v1, v2));
+        PackedHNormalBox packed_h_normal_box1 = {
+                std::array<NormalBox, 4>{NormalBox{9, 24}, NormalBox{5, 11}, NormalBox{14, 19}, NormalBox{10, 24}}};
+        PackedHNormalBox packed_h_normal_box2 = {
+                std::array<NormalBox, 4>{NormalBox{17, 22}, NormalBox{15, 14}, NormalBox{19, 7}, NormalBox{23, 12}}};
+        REQUIRE(PackedHNormalBoxWithinPackedHNormalBox_avx(packed_h_normal_box1, packed_h_normal_box2) ==
+                PackedHNormalBoxWithinPackedHNormalBox_cpp(packed_h_normal_box1, packed_h_normal_box2));
     }
 
     {
-        std::array<double, 8>  v1 = {4, 19, 6, 2, 11, 3, 1, 4};
-        std::array<double, 8>  v2 = {10, 16, 18, 15, 12, 16, 4, 13};
-        REQUIRE(PackedHNormalBoxWithinPackedHNormalBox_cpp(v1, v2) ==
-                        PackedHNormalBoxWithinPackedHNormalBox_avx(v1, v2));
+        PackedHNormalBox packed_h_normal_box1 = {
+                std::array<NormalBox, 4>{NormalBox{4, 19}, NormalBox{6, 2}, NormalBox{11, 3}, NormalBox{1, 4}}};
+        PackedHNormalBox packed_h_normal_box2 = {
+                std::array<NormalBox, 4>{NormalBox{10, 16}, NormalBox{18, 15}, NormalBox{12, 16}, NormalBox{4, 23}}};
+        REQUIRE(PackedHNormalBoxWithinPackedHNormalBox_avx(packed_h_normal_box1, packed_h_normal_box2) ==
+                PackedHNormalBoxWithinPackedHNormalBox_cpp(packed_h_normal_box1, packed_h_normal_box2));
     }
 }
