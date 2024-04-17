@@ -6,9 +6,8 @@
 #include <random>
 
 struct TestCase {
-    double point_x;
-    double point_y;
-    std::array<double, 8> boxes;
+    Point point;
+    PackedHNormalBox box;
 };
 
 std::vector<TestCase> GenerateTestCases(int n) {
@@ -19,10 +18,9 @@ std::vector<TestCase> GenerateTestCases(int n) {
     std::vector<TestCase> cases(n);
 
     for (int i = 0; i < n; i++) {
-        cases[i].point_x = dist(rnd);
-        cases[i].point_y = dist(rnd);
+        cases[i].point = {static_cast<double>(dist(rnd)), static_cast<double>(dist(rnd))};
         for (int j = 0; j < 8; j++) {
-            cases[i].boxes[j] = static_cast<double>(dist(rnd));
+            cases[i].box.boxes[j] = NormalBox{static_cast<double>(dist(rnd)), static_cast<double>(dist(rnd))};
         }
     }
 
@@ -36,7 +34,7 @@ TEST_CASE("Bench CPP") {
 
         meter.measure([&](int i){
             TestCase& test_case = cases[i];
-            return DistancePtoPackedHNB_cpp(test_case.point_x, test_case.point_y, test_case.boxes);
+            return SquaredDistancePointToPackedHNormalBox_cpp(test_case.point, test_case.box);
         });
     };
 }
@@ -47,7 +45,7 @@ TEST_CASE("Bench AVX"){
 
         meter.measure([&](int i){
             TestCase& test_case = cases[i];
-            return DistancePtoPackedHNB_avx(test_case.point_x, test_case.point_y, test_case.boxes);
+            return SquaredDistancePointToPackedHNormalBox_avx(test_case.point, test_case.box);
         });
     };
 }
