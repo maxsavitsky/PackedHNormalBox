@@ -39,9 +39,9 @@ cc_test(
         "-m64",
         #"-mavx512f",
         #"-mavx512dq",
-        "-mprefer-vector-width=512",
+        #"-mprefer-vector-width=512",
         #"-masm=intel",
         #"-fverbose-asm",
-        "-03",
+        "-O3",
     ],
 )
