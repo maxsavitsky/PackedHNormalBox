@@ -21,7 +21,8 @@ cc_test(
         "-mprefer-vector-width=512",
         "-masm=intel",
         "-fverbose-asm",
-        "-03",
+        #"-O3",
+        "-march=skylake-avx512"
     ],
 )
 
