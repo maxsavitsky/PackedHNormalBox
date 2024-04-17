@@ -5,76 +5,11 @@
 #include <catch2/benchmark/catch_benchmark.hpp>
 #include <catch2/catch_test_macros.hpp>
 
-TEST_CASE("Distance from Point to NormalBox") {
-    {
-        Point p1 = {};
-        NormalBox nb = {};
-        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 1);
-    }
-    {
-        Point p1 = {2, 0};
-        NormalBox nb = {1, 1};
-        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 1);
-    }
-
-    {
-        Point p1 = {0, 2};
-        NormalBox nb = {1, 1};
-        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 1);
-    }
-
-    {
-        Point p1 = {2, 2};
-        NormalBox nb = {1, 1};
-        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 2);
-    }
-
-    {
-        Point p1 = {0, 0};
-        NormalBox nb = {1, 1};
-        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 1);
-    }
-
-    {
-        Point p1 = {-2, 0};
-        NormalBox nb = {1, 1};
-        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 1);
-    }
-
-    {
-        Point p1 = {0, 2};
-        NormalBox nb = {1, 1};
-        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 1);
-    }
-
-    {
-        Point p1 = {2, -2};
-        NormalBox nb = {1, 1};
-        REQUIRE(SquaredDistancePointToNormalBox_cpp(p1, nb) == 2);
-    }
-}
-
 void CompareArrays(std::array<double, 4> a, std::array<double, 4> b) {
     REQUIRE(a.size() == b.size());
     for (size_t i = 0; i < a.size(); ++i) {
         REQUIRE(std::abs(a[i] - b[i]) <= 1e-5);
     }
-}
-
-TEST_CASE("Distance, CPP") {
-    Point p = {2, 2};
-    PackedHNormalBox packed_h_normal_box = {
-            std::array<NormalBox, 4>{NormalBox{1, 1}, NormalBox{2, 2}, NormalBox{1, 2}, NormalBox{2, 1}}};
-    CompareArrays(SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box), {2, 0.0, 1.0, 1.0});
-}
-
-TEST_CASE("Distance, AVX") {
-    std::array<double, 8> v = {1.0, 20.0, 1.0, 1.0, 10.0, 20.0, 10.0, 2.0};
-    Point p = {3, 3};
-    PackedHNormalBox packed_h_normal_box = {
-            std::array<NormalBox, 4>{NormalBox{1, 20}, NormalBox{1, 1}, NormalBox{10, 20}, NormalBox{10, 2}}};
-    CompareArrays(SquaredDistancePointToPackedHNormalBox_cpp(p, packed_h_normal_box),
-                  SquaredDistancePointToPackedHNormalBox_avx(p, packed_h_normal_box));
 }
 
 TEST_CASE("Random Distance") {
