@@ -25,6 +25,8 @@ std::vector<TestCase> GenerateTestCases(int n) {
             cases[i].boxes[j] = static_cast<double>(dist(rnd));
         }
     }
+
+    return cases;
 }
 
 
