@@ -24,12 +24,13 @@ double SquaredDistancePointToNormalBox_cpp(const Point& point, const NormalBox& 
     double ydis = abs(point.y) - normalBox.w;
     if (ydis < 0) {
         if (xdis < 0) {
-            return std::min(std::abs(xdis), std::abs(ydis));
+            double t = std::min(std::abs(xdis), std::abs(ydis));
+            return t*t;
         }
-        return xdis;
+        return xdis*xdis;
     }
     if (xdis < 0) {
-        return ydis;
+        return ydis*ydis;
     }
     return xdis*xdis + ydis*ydis;
 }
