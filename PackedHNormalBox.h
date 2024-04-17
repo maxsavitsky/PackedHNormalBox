@@ -5,21 +5,23 @@
 #include <cmath>
 #include <array>
 
-void debug_out(__mmask8 mask) {
-    int n = static_cast<int>(mask);
-    for (size_t i = 0; i < 8; i++)
-    {
-        std::cout << n % 2;
-        n /= 2;
-    }
-    std::cout << std::endl;
-}
+struct Point {
+    double x;
+    double y;
+};
 
-double DistancePtoNB_cpp(double x, double y, double length, double width) {
-    x = abs(x);
-    y = abs(y);
-    double xdis = x - length;
-    double ydis = y - width;
+struct NormalBox {
+    double l;
+    double w;
+};
+
+struct PackedHNormalBox {
+    std::array<NormalBox, 4> boxes;
+};
+
+double SquaredDistancePointToNormalBox_cpp(const Point& point, const NormalBox& normalBox) {
+    double xdis = abs(point.x) - normalBox.l;
+    double ydis = abs(point.y) - normalBox.w;
     if (ydis < 0) {
         if (xdis < 0) {
             return std::min(std::abs(xdis), std::abs(ydis));
@@ -29,32 +31,26 @@ double DistancePtoNB_cpp(double x, double y, double length, double width) {
     if (xdis < 0) {
         return ydis;
     }
-    return sqrt(xdis*xdis + ydis*ydis);
+    return xdis*xdis + ydis*ydis;
 }
 
-std::array<double, 4> DistancePtoPackedHNB_cpp(double x, double y, std::array<double, 8>& NBCoordinates) {
+std::array<double, 4> SquaredDistancePointToPackedHNormalBox_cpp(const Point& point, const PackedHNormalBox& packedHNormalBox) {
     std::array<double, 4> ans;
     for (size_t i = 0; i < 4; i++) {
-        ans[i] = DistancePtoNB_cpp(x, y, NBCoordinates[i * 2], NBCoordinates[i * 2 + 1]);
+        ans[i] = SquaredDistancePointToNormalBox_cpp(point, packedHNormalBox.boxes[i]);
     }
     return ans;
 }
 
-std::array<double, 4> DistancePtoPackedHNB_avx(double x, double y, std::array<double, 8>& NBCoordinates) {
+std::array<double, 4> SquaredDistancePointToPackedHNormalBox_avx(const Point& point, const PackedHNormalBox& packedHNormalBox) {
     __m512d zeros = _mm512_setzero_pd();
 
-    x = abs(x);
-    y = abs(y);
-    // since NormalBox is symmetrical, we can consider Point to be in a 1st quarter
+    __m512d point_x = _mm512_abs_pd(_mm512_set1_pd(point.x)); //xxxxxxxx
+    __m512d point_y = _mm512_abs_pd(_mm512_set1_pd(point.y)); //yyyyyyyy
+    __m512d point_coords = _mm512_mask_blend_pd((170), point_x, point_y); //xyxyxyxy
 
-    __m512d point_x = _mm512_set1_pd(x); //xxxxxxxx
-    __m512d point_y = _mm512_set1_pd(y); //yyyyyyyy
-
-    __m512d point = _mm512_mask_blend_pd((170), point_x, point_y); //xyxyxyxy
-
-    __m512d packed_normal_box = _mm512_loadu_pd(NBCoordinates.data()); //lwlwlwlw
-
-    __m512d difference = _mm512_sub_pd(point, packed_normal_box); //dxdydxdydxdydxdy
+    __m512d packed_normal_box = _mm512_loadu_pd(packedHNormalBox.boxes.data()); //lwlwlwlw
+    __m512d difference = _mm512_sub_pd(point_coords, packed_normal_box); //dxdydxdydxdydxdy
 
     //00110110 00: both x and y outside; 01: x outside, y inside; 10: x inside, y outside; 11: both x and y inside
     __mmask8 mask_xy_inside = _mm512_cmple_pd_mask(difference, zeros);              //xiyixiyixiyixiyi
@@ -78,7 +74,7 @@ std::array<double, 4> DistancePtoPackedHNB_avx(double x, double y, std::array<do
     mask_no_inside = (mask_no_inside & (85));
     mask_no_inside = (mask_no_inside | _kshiftli_mask8(mask_no_inside, 1));
 
-    difference = _mm512_abs_pd(difference);
+    difference = _mm512_mul_pd(difference, difference);
     __m512d difference_shuffled = _mm512_permute_pd(difference, 85);
     __m512d difference_x = _mm512_permute_pd(difference, 0);
     __m512d difference_y = _mm512_permute_pd(difference, 255);
@@ -86,12 +82,7 @@ std::array<double, 4> DistancePtoPackedHNB_avx(double x, double y, std::array<do
     __m512d ans = _mm512_min_pd(difference, difference_shuffled);
     ans = _mm512_mask_mov_pd(ans, mask_x_inside, difference_x);
     ans = _mm512_mask_mov_pd(ans, mask_y_inside, difference_y);
-
-    difference = _mm512_maskz_mul_pd(mask_no_inside, difference, difference);
-    __m512d ds = _mm512_permute_pd(difference, 85);
-    difference = _mm512_maskz_add_pd(mask_no_inside, difference, ds);
-    difference = _mm512_maskz_sqrt_pd(mask_no_inside, difference);
-
+    difference = _mm512_maskz_add_pd(mask_no_inside, difference, _mm512_permute_pd(difference, 85));
     ans = _mm512_mask_mov_pd(ans, mask_no_inside, difference);
 
     std::array<double, 8> notanswer;
@@ -101,15 +92,14 @@ std::array<double, 4> DistancePtoPackedHNB_avx(double x, double y, std::array<do
     return answer;
 }
 
-bool NormalBoxWithinNormalBox_cpp(double l1, double w1, double l2, double w2) {
-    return l1 <= l2 && w1 <= w2;
+bool NormalBoxWithinNormalBox_cpp(const NormalBox& normalBox1, const NormalBox& normalBox2) {
+    return normalBox1.l <= normalBox2.l && normalBox1.w <= normalBox2.w;
 }
 
-unsigned int PackedHNBWithinPackedHNB_cpp(const std::array<double, 8>& NBCoordinates1, const std::array<double, 8>& NBCoordinates2) {
+unsigned int PackedHNormalBoxWithinPackedHNormalBox_cpp(const PackedHNormalBox& packedHNormalBox1, const PackedHNormalBox& packedHNormalBox2) {
     unsigned int mask = 0;
     for (size_t i = 0; i < 4; i++) {
-        if (NBCoordinates1[i * 2] <= NBCoordinates2[i * 2] &&
-            NBCoordinates1[i * 2 + 1] <= NBCoordinates2[i * 2 + 1]) {
+        if (NormalBoxWithinNormalBox_cpp(packedHNormalBox1.boxes[i], packedHNormalBox2.boxes[i])) {
             mask |= 1U << i;
         }
     }
@@ -117,7 +107,7 @@ unsigned int PackedHNBWithinPackedHNB_cpp(const std::array<double, 8>& NBCoordin
     return mask;
 }
 
-unsigned int PackedHNBWithinPackedHNB_avx(const std::array<double, 8>& NBCoordinates1, const std::array<double, 8>& NBCoordinates2) {
+unsigned int PackedHNormalBoxWithinPackedHNormalBox_avx(const std::array<double, 8>& NBCoordinates1, const std::array<double, 8>& NBCoordinates2) {
     __m512d a = _mm512_loadu_pd(NBCoordinates1.data());
     __m512d b = _mm512_loadu_pd(NBCoordinates2.data());
     __mmask8 mask8 = _mm512_cmple_pd_mask(a, b);

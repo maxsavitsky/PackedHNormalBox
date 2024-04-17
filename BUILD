@@ -13,10 +13,15 @@ cc_test(
         ":PackedHNormalBox",
         "//tools/bazel:catch2",
     ],
+    linkstatic=True,
     copts = [
         "-m64",
         "-mavx512f",
         "-mavx512dq",
+        "-mprefer-vector-width=512",
+        "-masm=intel",
+        "-fverbose-asm",
+        "-03",
     ],
 )
 
@@ -28,9 +33,14 @@ cc_test(
         ":PackedHNormalBox",
         "//tools/bazel:catch2",
     ],
+    linkstatic=True,
     copts = [
         "-m64",
         "-mavx512f",
         "-mavx512dq",
+        "-mprefer-vector-width=512",
+        "-masm=intel",
+        "-fverbose-asm",
+        "-03",
     ],
 )
