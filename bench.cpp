@@ -30,7 +30,7 @@ std::vector<TestCase> GenerateTestCases(int n) {
 }
 
 
-TEST_CASE("Bench") {
+TEST_CASE("Bench CPP") {
     BENCHMARK_ADVANCED("Bench Distance, CPP")(Catch::Benchmark::Chronometer meter) {
         auto cases = GenerateTestCases(meter.runs());
 
@@ -39,7 +39,9 @@ TEST_CASE("Bench") {
             return DistancePtoPackedHNB_cpp(test_case.point_x, test_case.point_y, test_case.boxes);
         });
     };
+}
 
+TEST_CASE("Bench AVX"){
     BENCHMARK_ADVANCED("Bench Distance, AVX")(Catch::Benchmark::Chronometer meter) {
         auto cases = GenerateTestCases(meter.runs());
 
