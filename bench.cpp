@@ -38,7 +38,7 @@ TEST_CASE("Bench CPP") {
         });
     };
 }
-/*
+
 TEST_CASE("Bench AVX"){
     BENCHMARK_ADVANCED("Bench Distance, AVX")(Catch::Benchmark::Chronometer meter) {
         auto cases = GenerateTestCases(meter.runs());
@@ -49,4 +49,3 @@ TEST_CASE("Bench AVX"){
         });
     };
 }
-*/

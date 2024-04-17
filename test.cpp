@@ -11,7 +11,7 @@ void CompareArrays(std::array<double, 4> a, std::array<double, 4> b) {
         REQUIRE(std::abs(a[i] - b[i]) <= 1e-5);
     }
 }
-/*
+
 TEST_CASE("Random Distance") {
     {
         Point p = {-16, 92};
@@ -255,4 +255,3 @@ TEST_CASE("PackedNormalBox within PackedNormalBox (AVX)") {
                 PackedHNormalBoxWithinPackedHNormalBox_cpp(packed_h_normal_box1, packed_h_normal_box2));
     }
 }
-*/
