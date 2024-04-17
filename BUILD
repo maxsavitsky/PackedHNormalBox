@@ -22,7 +22,7 @@ cc_test(
         #"-masm=intel",
         #"-fverbose-asm",
         #"-O3",
-        #"-march=skylake-avx512"
+        #"-march=skylake-avx512",
     ],
 )
 

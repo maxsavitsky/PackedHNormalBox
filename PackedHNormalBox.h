@@ -124,9 +124,7 @@ unsigned int PackedHNormalBoxWithinPackedHNormalBox_avx(const PackedHNormalBox& 
     }
     return out_mask;
 }
-
 */
-
 
 
 
