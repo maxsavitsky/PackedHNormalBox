@@ -48,4 +48,5 @@ TEST_CASE("Bench AVX"){
             return SquaredDistancePointToPackedHNormalBox_avx(test_case.point, test_case.box);
         });
     };
-}*/
+}
+*/

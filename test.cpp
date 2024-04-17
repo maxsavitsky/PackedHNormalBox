@@ -236,7 +236,6 @@ TEST_CASE("PackedNormalBox within PackedNormalBox") {
     }
 }
 
-
 TEST_CASE("PackedNormalBox within PackedNormalBox (AVX)") {
     {
         PackedHNormalBox packed_h_normal_box1 = {
