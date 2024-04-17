@@ -107,9 +107,9 @@ unsigned int PackedHNormalBoxWithinPackedHNormalBox_cpp(const PackedHNormalBox& 
     return mask;
 }
 
-unsigned int PackedHNormalBoxWithinPackedHNormalBox_avx(const std::array<double, 8>& NBCoordinates1, const std::array<double, 8>& NBCoordinates2) {
-    __m512d a = _mm512_loadu_pd(NBCoordinates1.data());
-    __m512d b = _mm512_loadu_pd(NBCoordinates2.data());
+unsigned int PackedHNormalBoxWithinPackedHNormalBox_avx(const PackedHNormalBox& packedHNormalBox1, const PackedHNormalBox& packedHNormalBox2) {
+    __m512d a = _mm512_loadu_pd(packedHNormalBox1.boxes.data());
+    __m512d b = _mm512_loadu_pd(packedHNormalBox2.boxes.data());
     __mmask8 mask8 = _mm512_cmple_pd_mask(a, b);
 
     unsigned int mask = (mask8);
