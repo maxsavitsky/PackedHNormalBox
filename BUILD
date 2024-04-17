@@ -17,7 +17,8 @@ cc_test(
         "-m64",
         "-mavx512f",
         "-mavx512dq",
-        "-O3"
+        #"-O3",
+        "-march=skylake-avx512"
     ],
 )
 
