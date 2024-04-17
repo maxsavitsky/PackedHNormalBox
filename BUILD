@@ -16,13 +16,13 @@ cc_test(
     linkstatic=True,
     copts = [
         "-m64",
-        "-mavx512f",
-        "-mavx512dq",
-        "-mprefer-vector-width=512",
-        "-masm=intel",
-        "-fverbose-asm",
+        #"-mavx512f",
+        #"-mavx512dq",
+        #"-mprefer-vector-width=512",
+        #"-masm=intel",
+        #"-fverbose-asm",
         #"-O3",
-        "-march=skylake-avx512"
+        #"-march=skylake-avx512"
     ],
 )
 
@@ -37,11 +37,11 @@ cc_test(
     linkstatic=True,
     copts = [
         "-m64",
-        "-mavx512f",
-        "-mavx512dq",
+        #"-mavx512f",
+        #"-mavx512dq",
         "-mprefer-vector-width=512",
-        "-masm=intel",
-        "-fverbose-asm",
+        #"-masm=intel",
+        #"-fverbose-asm",
         "-03",
     ],
 )

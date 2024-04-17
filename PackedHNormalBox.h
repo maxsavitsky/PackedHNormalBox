@@ -42,7 +42,7 @@ std::array<double, 4> SquaredDistancePointToPackedHNormalBox_cpp(const Point& po
     }
     return ans;
 }
-
+/*
 std::array<double, 4> SquaredDistancePointToPackedHNormalBox_avx(const Point& point, const PackedHNormalBox& packedHNormalBox) {
     __m512d zeros = _mm512_setzero_pd();
 
@@ -92,7 +92,7 @@ std::array<double, 4> SquaredDistancePointToPackedHNormalBox_avx(const Point& po
 
     return answer;
 }
-
+*/
 bool NormalBoxWithinNormalBox_cpp(const NormalBox& normalBox1, const NormalBox& normalBox2) {
     return normalBox1.l <= normalBox2.l && normalBox1.w <= normalBox2.w;
 }
@@ -107,7 +107,7 @@ unsigned int PackedHNormalBoxWithinPackedHNormalBox_cpp(const PackedHNormalBox& 
 
     return mask;
 }
-
+/*
 unsigned int PackedHNormalBoxWithinPackedHNormalBox_avx(const PackedHNormalBox& packedHNormalBox1, const PackedHNormalBox& packedHNormalBox2) {
     __m512d a = _mm512_loadu_pd(packedHNormalBox1.boxes.data());
     __m512d b = _mm512_loadu_pd(packedHNormalBox2.boxes.data());
@@ -125,7 +125,7 @@ unsigned int PackedHNormalBoxWithinPackedHNormalBox_avx(const PackedHNormalBox& 
     return out_mask;
 }
 
-
+*/
 
 
 
