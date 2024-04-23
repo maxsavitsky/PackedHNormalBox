@@ -171,12 +171,12 @@ std::array<double, 4> SquaredDistancePointToPackedHNormalBox2_cpp(const Point& p
 
 std::array<double, 4> SquaredDistancePointToPackedHNormalBox2_avx(const Point& point,
                                                                  const PackedHNormalBox& packedHNormalBox) {
-    __m512d point_x = _mm512_abs_pd(_mm512_set1_pd(point.x)); //xxxxxxxx
-    __m512d point_y = _mm512_abs_pd(_mm512_set1_pd(point.y)); //yyyyyyyy
+    __m512d point_x = _mm512_set1_pd(point.x); //xxxxxxxx
+    __m512d point_y = _mm512_set1_pd(point.y); //yyyyyyyy
     __m512d point_coords = _mm512_mask_blend_pd((170), point_x, point_y); //xyxyxyxy
     __m512d packed_normal_box = _mm512_loadu_pd(packedHNormalBox.boxes.data()); //lwlwlwlw
-    __m512d difference1 = _mm512_sub_pd(packed_normal_box, point_coords); //dxdydxdydxdydxdy
-    __m512d difference2 = _mm512_add_pd(point_coords, packed_normal_box);
+    __m512d difference1 = _mm512_abs_pd(_mm512_sub_pd(point_coords, packed_normal_box)); //dxdydxdydxdydxdy
+    __m512d difference2 = _mm512_abs_pd(_mm512_add_pd(point_coords, packed_normal_box));
 
     Debug_print8(point_coords);
     Debug_print8(packed_normal_box);
