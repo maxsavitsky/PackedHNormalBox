@@ -185,6 +185,7 @@ std::array<double, 4> SquaredDistancePointToPackedHNormalBox2_avx(const Point& p
     Debug_print8(difference2);
 
     __m512d sum_diff = _mm512_add_pd(difference1, difference2);
+    Debug_print8(sum_diff);
     sum_diff = _mm512_sub_pd(sum_diff, packed_normal_box);
     sum_diff = _mm512_sub_pd(sum_diff, packed_normal_box);
 
