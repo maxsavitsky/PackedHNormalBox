@@ -175,33 +175,22 @@ std::array<double, 4> SquaredDistancePointToPackedHNormalBox2_avx(const Point& p
     __m512d point_y = _mm512_set1_pd(point.y); //yyyyyyyy
     __m512d point_coords = _mm512_mask_blend_pd((170), point_x, point_y); //xyxyxyxy
     __m512d packed_normal_box = _mm512_loadu_pd(packedHNormalBox.boxes.data()); //lwlwlwlw
-    __m512d difference1 = _mm512_abs_pd(_mm512_sub_pd(point_coords, packed_normal_box)); //dxdydxdydxdydxdy
-    __m512d difference2 = _mm512_abs_pd(_mm512_add_pd(point_coords, packed_normal_box));
+    __m512d difference = _mm512_abs_pd(_mm512_sub_pd(point_coords, packed_normal_box)); //dxdydxdydxdydxdy
+    __m512d sum = _mm512_abs_pd(_mm512_add_pd(point_coords, packed_normal_box));
 
-    Debug_print8(point_coords);
-    Debug_print8(packed_normal_box);
+    difference = _mm512_add_pd(difference, sum);
+    difference = _mm512_sub_pd(difference, packed_normal_box);
+    difference = _mm512_sub_pd(difference, packed_normal_box);
 
-    Debug_print8(difference1);
-    Debug_print8(difference2);
-
-    __m512d sum_diff = _mm512_add_pd(difference1, difference2);
-    Debug_print8(sum_diff);
-    sum_diff = _mm512_sub_pd(sum_diff, packed_normal_box);
-    sum_diff = _mm512_sub_pd(sum_diff, packed_normal_box);
-
-    Debug_print8(sum_diff);
-
-    sum_diff = _mm512_mul_pd(sum_diff, sum_diff);
-    __m512d sum_dif_shuffled = _mm512_permute_pd(sum_diff, 85);
-    sum_diff = _mm512_add_pd(sum_diff, sum_dif_shuffled);
-
-    Debug_print8(sum_diff);
+    difference = _mm512_mul_pd(difference, difference);
+    __m512d sum_dif_shuffled = _mm512_permute_pd(difference, 85);
+    difference = _mm512_add_pd(difference, sum_dif_shuffled);
 
     __m512d fours = _mm512_set1_pd(4.0);
-    sum_diff = _mm512_div_pd(sum_diff, fours);
+    difference = _mm512_div_pd(difference, fours);
 
     std::array<double, 8> notanswer;
-    _mm512_store_pd(notanswer.data(), sum_diff);
+    _mm512_store_pd(notanswer.data(), difference);
     std::array<double, 4> answer = {notanswer[1], notanswer[3], notanswer[5], notanswer[7]};
 
     return answer;

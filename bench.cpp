@@ -49,3 +49,25 @@ TEST_CASE("Bench AVX"){
         });
     };
 }
+
+TEST_CASE("Bench CPP_2") {
+    BENCHMARK_ADVANCED("Bench Distance, CPP")(Catch::Benchmark::Chronometer meter) {
+            auto cases = GenerateTestCases(meter.runs());
+
+            meter.measure([&](int i){
+                TestCase& test_case = cases[i];
+                return SquaredDistancePointToPackedHNormalBox2_cpp(test_case.point, test_case.box);
+            });
+        };
+}
+
+TEST_CASE("Bench AVX_2"){
+    BENCHMARK_ADVANCED("Bench Distance, AVX")(Catch::Benchmark::Chronometer meter) {
+            auto cases = GenerateTestCases(meter.runs());
+
+            meter.measure([&](int i){
+                TestCase& test_case = cases[i];
+                return SquaredDistancePointToPackedHNormalBox2_avx(test_case.point, test_case.box);
+            });
+        };
+}
