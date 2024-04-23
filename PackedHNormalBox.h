@@ -5,6 +5,15 @@
 #include <cmath>
 #include <array>
 
+void Debug_print8(__m512d& mem) {
+    std::array<double, 8> arr;
+    _mm512_store_pd(arr.data(), mem);
+    for (int i = 0; i < 8; ++i) {
+        std::cout << arr[i] << " ";
+    }
+    std::cout << std::endl;
+}
+
 struct Point {
     double x;
     double y;
@@ -142,14 +151,11 @@ unsigned int PackedHNormalBoxWithinPackedHNormalBox_avx(const PackedHNormalBox& 
 double SquaredDistancePointToNormalBox2_cpp(const Point& point, const NormalBox& normalBox) {
     double xdis = abs(point.x) - normalBox.l;
     double ydis = abs(point.y) - normalBox.w;
-    if (ydis < 0) {
-        if (xdis < 0) {
-            return 0;
-        }
-        return xdis * xdis;
-    }
     if (xdis < 0) {
-        return ydis * ydis;
+        xdis = 0;
+    }
+    if (ydis < 0) {
+        ydis = 0;
     }
     return xdis * xdis + ydis * ydis;
 }
@@ -172,15 +178,22 @@ std::array<double, 4> SquaredDistancePointToPackedHNormalBox2_avx(const Point& p
     __m512d difference1 = _mm512_sub_pd(point_coords, packed_normal_box); //dxdydxdydxdydxdy
     __m512d difference2 = _mm512_add_pd(point_coords, packed_normal_box);
 
+    Debug_print8(difference1);
+    Debug_print8(difference2);
+
     __m512d sum_diff = _mm512_add_pd(difference1, difference2);
     sum_diff = _mm512_sub_pd(sum_diff, packed_normal_box);
     sum_diff = _mm512_sub_pd(sum_diff, packed_normal_box);
 
-    sum_diff = _mm512_mul_pd(sum_diff, sum_diff);
-    __m512d fours = _mm512_set1_pd(4.0);
-    __m512d sum_dif_shuffled = _mm512_permute_pd(sum_diff, 85);
+    Debug_print8(sum_diff);
 
+    sum_diff = _mm512_mul_pd(sum_diff, sum_diff);
+    __m512d sum_dif_shuffled = _mm512_permute_pd(sum_diff, 85);
     sum_diff = _mm512_add_pd(sum_diff, sum_dif_shuffled);
+
+    Debug_print8(sum_diff);
+
+    __m512d fours = _mm512_set1_pd(4.0);
     sum_diff = _mm512_div_pd(sum_diff, fours);
 
     std::array<double, 8> notanswer;

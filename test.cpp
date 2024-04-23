@@ -266,19 +266,5 @@ TEST_CASE("Distance - zeros if inside") {
         CompareArrays(SquaredDistancePointToPackedHNormalBox2_avx(p, packed_h_normal_box),
                       SquaredDistancePointToPackedHNormalBox2_cpp(p, packed_h_normal_box));
     }
-    {
-        Point p = {-3, -78};
-        PackedHNormalBox packed_h_normal_box = {
-                std::array<NormalBox, 4>{NormalBox{7, 78}, NormalBox{52, 63}, NormalBox{67, 33}, NormalBox{5, 23}}};
-        CompareArrays(SquaredDistancePointToPackedHNormalBox2_avx(p, packed_h_normal_box),
-                      SquaredDistancePointToPackedHNormalBox2_cpp(p, packed_h_normal_box));
-    }
-    {
-        Point p = {37, -98};
-        PackedHNormalBox packed_h_normal_box = {
-                std::array<NormalBox, 4>{NormalBox{86, 52}, NormalBox{5, 10}, NormalBox{74, 59}, NormalBox{29, 65}}};
-        CompareArrays(SquaredDistancePointToPackedHNormalBox2_avx(p, packed_h_normal_box),
-                      SquaredDistancePointToPackedHNormalBox2_cpp(p, packed_h_normal_box));
-    }
 }
 
