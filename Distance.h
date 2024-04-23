@@ -1,7 +1,6 @@
 #include <array>
 #include <immintrin.h>
 
-
 double SquaredDistance_cpp(const Point& point, const NormalBox& normal_box) {
     double x_dis = abs(point.x) - normal_box.corner.x;
     double y_dis = abs(point.y) - normal_box.corner.y;
