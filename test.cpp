@@ -3,7 +3,9 @@
 #include "Distance.h"
 #include "Within.h"
 
+#include <catch2/benchmark/catch_benchmark.hpp>
 #include <catch2/catch_test_macros.hpp>
+
 
 void CompareArrays(std::array<double, 4> a, std::array<double, 4> b) {
     REQUIRE(a.size() == b.size());

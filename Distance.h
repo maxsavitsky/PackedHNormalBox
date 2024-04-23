@@ -26,7 +26,7 @@ extern "C" std::array<double, 4> SquaredDistancePacked_avx(const Point& point,
                                                            const PackedHNormalBox& packedHNormalBox) {
     __m512d point_x = _mm512_set1_pd(point.x);
     __m512d point_y = _mm512_set1_pd(point.y);
-    __m512d point_coords = _mm512_mask_blend_pd((0b10101010), point_x, point_y);
+    __m512d point_coords = _mm512_mask_blend_pd((170), point_x, point_y);
     __m512d packed_normal_box = _mm512_load_pd(packedHNormalBox.boxes.data());
     __m512d difference = _mm512_abs_pd(_mm512_sub_pd(point_coords, packed_normal_box));
     __m512d sum = _mm512_abs_pd(_mm512_add_pd(point_coords, packed_normal_box));
@@ -36,7 +36,7 @@ extern "C" std::array<double, 4> SquaredDistancePacked_avx(const Point& point,
     difference = _mm512_sub_pd(difference, packed_normal_box);
 
     difference = _mm512_mul_pd(difference, difference);
-    __m512d sum_dif_shuffled = _mm512_permute_pd(difference, 0b01010101);
+    __m512d sum_dif_shuffled = _mm512_permute_pd(difference, 85);
     difference = _mm512_add_pd(difference, sum_dif_shuffled);
 
     __m512d fours = _mm512_set1_pd(4.0);
