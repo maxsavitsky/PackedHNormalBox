@@ -181,6 +181,7 @@ std::array<double, 4> SquaredDistancePointToPackedHNormalBox2_avx(const Point& p
     __m512d sum_dif_shuffled = _mm512_permute_pd(sum_diff, 85);
 
     sum_diff = _mm512_add_pd(sum_diff, sum_dif_shuffled);
+    sum_diff = _mm512_div_pd(sum_diff, fours);
 
     std::array<double, 8> notanswer;
     _mm512_store_pd(notanswer.data(), sum_diff);
