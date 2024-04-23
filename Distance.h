@@ -1,33 +1,30 @@
 #include <array>
 #include <immintrin.h>
 
-double SquaredDistance_cpp(const Point& point, const NormalBox& normalBox) {
-    double xdis = abs(point.x) - normalBox.corner.x;
-    double ydis = abs(point.y) - normalBox.corner.y;
-    if (xdis < 0) {
-        xdis = 0;
-    }
-    if (ydis < 0) {
-        ydis = 0;
-    }
-    return xdis * xdis + ydis * ydis;
+
+double SquaredDistance_cpp(const Point& point, const NormalBox& normal_box) {
+    double x_dis = abs(point.x) - normal_box.corner.x;
+    double y_dis = abs(point.y) - normal_box.corner.y;
+    x_dis = std::max<double>(x_dis, 0);
+    y_dis = std::max<double>(y_dis, 0);
+    return x_dis * x_dis + y_dis * y_dis;
 }
 
-std::array<double, 4> SquaredDistancePacked_cpp(const Point& point,
-                                                const PackedHNormalBox& packedHNormalBox) {
-    std::array<double, 4> ans;
+std::array<double, 4>
+SquaredDistancePacked_cpp(const Point& point, const PackedHNormalBox& packed_h_normal_box) {
+    std::array<double, 4> ans{};
     for (size_t i = 0; i < 4; i++) {
-        ans[i] = SquaredDistance_cpp(point, packedHNormalBox.boxes[i]);
+        ans.at(i) = SquaredDistance_cpp(point, packed_h_normal_box.boxes.at(i));
     }
     return ans;
 }
 
-extern "C" std::array<double, 4> SquaredDistancePacked_avx(const Point& point,
-                                                           const PackedHNormalBox& packedHNormalBox) {
+extern "C" std::array<double, 4>
+SquaredDistancePacked_avx(const Point& point, const PackedHNormalBox& packed_h_normal_box) {
     __m512d point_x = _mm512_set1_pd(point.x);
     __m512d point_y = _mm512_set1_pd(point.y);
     __m512d point_coords = _mm512_mask_blend_pd((170), point_x, point_y);
-    __m512d packed_normal_box = _mm512_load_pd(packedHNormalBox.boxes.data());
+    __m512d packed_normal_box = _mm512_load_pd(packed_h_normal_box.boxes.data());
     __m512d difference = _mm512_abs_pd(_mm512_sub_pd(point_coords, packed_normal_box));
     __m512d sum = _mm512_abs_pd(_mm512_add_pd(point_coords, packed_normal_box));
 
@@ -42,9 +39,9 @@ extern "C" std::array<double, 4> SquaredDistancePacked_avx(const Point& point,
     __m512d fours = _mm512_set1_pd(4.0);
     difference = _mm512_div_pd(difference, fours);
 
-    std::array<double, 8> notanswer;
-    _mm512_store_pd(notanswer.data(), difference);
-    std::array<double, 4> answer = {notanswer[1], notanswer[3], notanswer[5], notanswer[7]};
+    std::array<double, 8> not_answer{};
+    _mm512_store_pd(not_answer.data(), difference);
+    std::array<double, 4> answer = {not_answer[1], not_answer[3], not_answer[5], not_answer[7]};
 
     return answer;
 }

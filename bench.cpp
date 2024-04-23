@@ -22,7 +22,7 @@ std::vector<TestCase> GenerateTestCases(int n) {
     for (int i = 0; i < n; i++) {
         cases[i].point = {static_cast<double>(dist(rnd)), static_cast<double>(dist(rnd))};
         for (int j = 0; j < 4; j++) {
-            cases[i].box.boxes[j] = NormalBox{static_cast<double>(dist(rnd)), static_cast<double>(dist(rnd))};
+            cases[i].box.boxes.at(j) = NormalBox{static_cast<double>(dist(rnd)), static_cast<double>(dist(rnd))};
         }
     }
 
