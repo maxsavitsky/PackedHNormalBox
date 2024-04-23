@@ -178,6 +178,9 @@ std::array<double, 4> SquaredDistancePointToPackedHNormalBox2_avx(const Point& p
     __m512d difference1 = _mm512_sub_pd(point_coords, packed_normal_box); //dxdydxdydxdydxdy
     __m512d difference2 = _mm512_add_pd(point_coords, packed_normal_box);
 
+    Debug_print8(point_coords);
+    Debug_print8(packed_normal_box);
+
     Debug_print8(difference1);
     Debug_print8(difference2);
 
