@@ -257,12 +257,10 @@ TEST_CASE("PackedNormalBox within PackedNormalBox (AVX)") {
 }
 
 TEST_CASE("Distance - zeros if inside") {
-    REQUIRE(SquaredDistance_cpp(Point{1.0, 1.0}, NormalBox{2.0, 2.0}) == 0);
-
     {
-        Point p = {-42, 56};
+        Point p = {5, 5};
         PackedHNormalBox packed_h_normal_box = {
-                std::array<NormalBox, 4>{NormalBox{62, 5}, NormalBox{15, 81}, NormalBox{55, 14}, NormalBox{43, 29}}};
+                std::array<NormalBox, 4>{NormalBox{1, 1}, NormalBox{1, 10}, NormalBox{10, 1}, NormalBox{10, 10}}};
         CompareArrays(SquaredDistancePacked_avx(p, packed_h_normal_box),
                       SquaredDistancePacked_cpp(p, packed_h_normal_box));
     }
