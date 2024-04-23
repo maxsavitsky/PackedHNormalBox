@@ -7,7 +7,7 @@ double SquaredDeepDistance_cpp(const Point& point, const NormalBox& normalBox) {
     if (ydis < 0) {
         if (xdis < 0) {
             const double t = std::max(xdis, ydis);
-            return -(t * t);
+            return t * t;
         }
         return xdis * xdis;
     }
@@ -71,8 +71,6 @@ extern "C" std::array<double, 4> SquaredDeepDistancePacked_avx(const Point& poin
     __m512d difference_y = _mm512_permute_pd(difference, 0b11111111);
 
     __m512d ans = _mm512_min_pd(difference, difference_shuffled);
-    __m512d neg = _mm512_set1_pd(-1.0);
-    ans = _mm512_mul_pd(ans, neg);
     ans = _mm512_mask_mov_pd(ans, mask_x_inside, difference_x);
     ans = _mm512_mask_mov_pd(ans, mask_y_inside, difference_y);
     difference = _mm512_maskz_add_pd(mask_no_inside, difference,
