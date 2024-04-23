@@ -51,7 +51,7 @@ TEST_CASE("Bench AVX"){
 }
 
 TEST_CASE("Bench CPP_2") {
-    BENCHMARK_ADVANCED("Bench Distance, CPP")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("Bench Distance, CPP 2")(Catch::Benchmark::Chronometer meter) {
             auto cases = GenerateTestCases(meter.runs());
 
             meter.measure([&](int i){
@@ -62,7 +62,7 @@ TEST_CASE("Bench CPP_2") {
 }
 
 TEST_CASE("Bench AVX_2"){
-    BENCHMARK_ADVANCED("Bench Distance, AVX")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("Bench Distance, AVX 2")(Catch::Benchmark::Chronometer meter) {
             auto cases = GenerateTestCases(meter.runs());
 
             meter.measure([&](int i){
