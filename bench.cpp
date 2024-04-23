@@ -1,8 +1,10 @@
 #include "PackedHNormalBox.h"
-#include <immintrin.h>
+#include "DeepDistance.h"
+#include "Distance.h"
+#include "Within.h"
 
-#include <catch2/catch_test_macros.hpp>
 #include <catch2/benchmark/catch_benchmark.hpp>
+#include <catch2/catch_test_macros.hpp>
 #include <random>
 
 struct TestCase {
@@ -34,7 +36,7 @@ TEST_CASE("Bench CPP") {
 
         meter.measure([&](int i){
             TestCase& test_case = cases[i];
-            return SquaredDistancePointToPackedHNormalBox_cpp(test_case.point, test_case.box);
+            return SquaredDeepDistancePacked_cpp(test_case.point, test_case.box);
         });
     };
 }
@@ -45,29 +47,29 @@ TEST_CASE("Bench AVX"){
 
         meter.measure([&](int i){
             TestCase& test_case = cases[i];
-            return SquaredDistancePointToPackedHNormalBox_avx(test_case.point, test_case.box);
+            return SquaredDeepDistancePacked_avx(test_case.point, test_case.box);
         });
     };
 }
 
-TEST_CASE("Bench CPP_2") {
-    BENCHMARK_ADVANCED("Bench Distance, CPP 2")(Catch::Benchmark::Chronometer meter) {
+TEST_CASE("Bench_2 CPP") {
+    BENCHMARK_ADVANCED("Bench Distance2, CPP ")(Catch::Benchmark::Chronometer meter) {
             auto cases = GenerateTestCases(meter.runs());
 
             meter.measure([&](int i){
                 TestCase& test_case = cases[i];
-                return SquaredDistancePointToPackedHNormalBox2_cpp(test_case.point, test_case.box);
+                return SquaredDistancePacked_cpp(test_case.point, test_case.box);
             });
         };
 }
 
-TEST_CASE("Bench AVX_2"){
-    BENCHMARK_ADVANCED("Bench Distance, AVX 2")(Catch::Benchmark::Chronometer meter) {
+TEST_CASE("Bench_2 AVX"){
+    BENCHMARK_ADVANCED("Bench Distance2, AVX")(Catch::Benchmark::Chronometer meter) {
             auto cases = GenerateTestCases(meter.runs());
 
             meter.measure([&](int i){
                 TestCase& test_case = cases[i];
-                return SquaredDistancePointToPackedHNormalBox2_avx(test_case.point, test_case.box);
+                return SquaredDistancePacked_avx(test_case.point, test_case.box);
             });
         };
 }

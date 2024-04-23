@@ -2,7 +2,12 @@ load("@rules_cc//cc:defs.bzl", "cc_library", "cc_test")
 
 cc_library(
     name = "PackedHNormalBox",
-    hdrs = ["PackedHNormalBox.h"],
+    hdrs = [
+        "PackedHNormalBox.h",
+        "Distance.h",
+        "DeepDistance.h",
+        "Within.h"
+    ]
 )
 
 cc_test(
