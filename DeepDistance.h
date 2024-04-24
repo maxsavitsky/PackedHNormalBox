@@ -79,9 +79,12 @@ SquaredDeepDistancePacked_avx(const Point& point, const PackedHNormalBox& packed
     ans = _mm512_mul_pd(ans, _mm512_set1_pd(-1.0));
     Debug_print8(ans);
     ans = _mm512_mask_mov_pd(ans, mask_x_inside, difference_x);
+    Debug_print8(ans);
     ans = _mm512_mask_mov_pd(ans, mask_y_inside, difference_y);
+    Debug_print8(ans);
     difference = _mm512_maskz_add_pd(mask_no_inside, difference, _mm512_permute_pd(difference, 85));
     ans = _mm512_mask_mov_pd(ans, mask_no_inside, difference);
+    Debug_print8(ans);
 
     std::array<double, 8> not_answer{};
     _mm512_store_pd(not_answer.data(), difference);
