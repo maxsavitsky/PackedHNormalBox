@@ -30,7 +30,7 @@ extern "C" std::array<double, 4>
 SquaredDeepDistancePacked_avx(const Point& point, const PackedHNormalBox& packed_h_normal_box) {
     const __m512d point_x = _mm512_abs_pd(_mm512_set1_pd(point.x));
     const __m512d point_y = _mm512_abs_pd(_mm512_set1_pd(point.y));
-    const __m512d point_coords = _mm512_mask_blend_pd((0b10101010), point_x, point_y);
+    const __m512d point_coords = _mm512_mask_blend_pd((170), point_x, point_y);
 
     const __m512d packed_normal_box = _mm512_load_pd(packed_h_normal_box.boxes.data());
     __m512d difference = _mm512_sub_pd(point_coords, packed_normal_box);
@@ -41,31 +41,31 @@ SquaredDeepDistancePacked_avx(const Point& point, const PackedHNormalBox& packed
     const __mmask8 mask_xy_outside_x = _kshiftri_mask8(mask_xy_outside, 1);
 
     __mmask8 mask_x_inside = (mask_xy_outside & mask_xy_inside_x);
-    mask_x_inside = (mask_x_inside & 0b01010101);
+    mask_x_inside = (mask_x_inside & 85);
     mask_x_inside = (mask_x_inside | _kshiftli_mask8(mask_x_inside, 1));
 
     __mmask8 mask_y_inside = (mask_xy_inside & mask_xy_outside_x);
-    mask_y_inside = (mask_y_inside & 0b01010101);
+    mask_y_inside = (mask_y_inside & 85);
     mask_y_inside = (mask_y_inside | _kshiftli_mask8(mask_y_inside, 1));
 
     __mmask8 mask_no_inside = (mask_xy_outside & mask_xy_outside_x);
-    mask_no_inside = (mask_no_inside & 0b01010101);
+    mask_no_inside = (mask_no_inside & 85);
     mask_no_inside = (mask_no_inside | _kshiftli_mask8(mask_no_inside, 1));
 
     difference = _mm512_mul_pd(difference, difference);
-    const __m512d difference_shuffled = _mm512_permute_pd(difference, 0b01010101);
-    const __m512d difference_x = _mm512_permute_pd(difference, 0b00000000);
-    const __m512d difference_y = _mm512_permute_pd(difference, 0b11111111);
+    const __m512d difference_shuffled = _mm512_permute_pd(difference, 85);
+    const __m512d difference_x = _mm512_permute_pd(difference, 0);
+    const __m512d difference_y = _mm512_permute_pd(difference, 255);
 
     __m512d ans = _mm512_min_pd(difference, difference_shuffled);
     ans = _mm512_mul_pd(ans, _mm512_set1_pd(-1.0));
     ans = _mm512_mask_mov_pd(ans, mask_x_inside, difference_x);
     ans = _mm512_mask_mov_pd(ans, mask_y_inside, difference_y);
-    difference = _mm512_maskz_add_pd(mask_no_inside, difference, _mm512_permute_pd(difference, 0b01010101));
+    difference = _mm512_maskz_add_pd(mask_no_inside, difference, _mm512_permute_pd(difference, 85));
     ans = _mm512_mask_mov_pd(ans, mask_no_inside, difference);
 
     std::array<double, 8> not_answer{};
-    _mm512_mask_store_pd(not_answer.data(), 0b10101010, difference);
+    _mm512_mask_store_pd(not_answer.data(), 170, difference);
     std::array<double, 4> answer = {not_answer[0], not_answer[2], not_answer[4], not_answer[6]};
 
     return answer;
