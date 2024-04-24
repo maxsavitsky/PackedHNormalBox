@@ -1,6 +1,5 @@
 #include <array>
 
-
 struct Point {
     double x;
     double y;
