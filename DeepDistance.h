@@ -12,18 +12,23 @@ void Debug_print8(const __m512d& mem) {
 }
 
 double SquaredDeepDistance_cpp(const Point& point, const NormalBox& normal_box) {
-    const double x_dis = abs(point.x) - normal_box.corner.x;
-    const double y_dis = abs(point.y) - normal_box.corner.y;
+    const double x_dis = std::abs(point.x) - normal_box.corner.x;
+    const double y_dis = std::abs(point.y) - normal_box.corner.y;
+    std::cout << point.x << " " << point.y << " " << normal_box.corner.x << " " << normal_box.corner.y << '\n';
     if (y_dis < 0) {
         if (x_dis < 0) {
             double t = std::max(x_dis, y_dis);
+            std::cout << -1.0 * t * t << '\n';
             return -1.0 * t * t;
         }
+        std::cout << x_dis * x_dis << '\n';
         return x_dis * x_dis;
     }
     if (x_dis < 0) {
+        std::cout << y_dis * y_dis << '\n';
         return y_dis * y_dis;
     }
+    std::cout << x_dis * x_dis + y_dis * y_dis << '\n';
     return x_dis * x_dis + y_dis * y_dis;
 }
 
