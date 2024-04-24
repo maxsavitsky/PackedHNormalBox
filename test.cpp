@@ -9,6 +9,7 @@
 void CompareArrays(std::array<double, 4> a, std::array<double, 4> b) {
     for (size_t i = 0; i < a.size(); ++i) {
         REQUIRE(std::abs(a.at(i) - b.at(i)) <= 1e-5);
+
     }
 }
 
