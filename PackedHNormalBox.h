@@ -1,6 +1,4 @@
 #include <array>
-#include <cmath>
-#include <stdio.h>
 
 struct Point {
     double x;

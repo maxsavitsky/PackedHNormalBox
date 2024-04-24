@@ -1,19 +1,9 @@
 #include <array>
 #include <immintrin.h>
-#include <iostream>
-
-void Debug_print8(const __m512d& mem) {
-    std::array<double, 8> arr {};
-    _mm512_store_pd(arr.data(), mem);
-    for (int i = 0; i < 8; ++i) {
-        std::cout << arr.at(i) << " ";
-    }
-    std::cout << '\n';
-}
 
 double SquaredDeepDistance_cpp(const Point& point, const NormalBox& normal_box) {
-    const double x_dis = std::abs(point.x) - normal_box.corner.x;
-    const double y_dis = std::abs(point.y) - normal_box.corner.y;
+    const double x_dis = abs(point.x) - normal_box.corner.x;
+    const double y_dis = abs(point.y) - normal_box.corner.y;
     if (y_dis < 0) {
         if (x_dis < 0) {
             double t = std::max(x_dis, y_dis);
