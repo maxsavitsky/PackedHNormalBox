@@ -1,5 +1,15 @@
 #include <array>
 #include <immintrin.h>
+#include <iostream>
+
+void Debug_print8(const __m512d& mem) {
+    std::array<double, 8> arr {};
+    _mm512_store_pd(arr.data(), mem);
+    for (int i = 0; i < 8; ++i) {
+        std::cout << arr.at(i) << " ";
+    }
+    std::cout << '\n';
+}
 
 double SquaredDeepDistance_cpp(const Point& point, const NormalBox& normal_box) {
     const double x_dis = abs(point.x) - normal_box.corner.x;
@@ -32,8 +42,15 @@ SquaredDeepDistancePacked_avx(const Point& point, const PackedHNormalBox& packed
     const __m512d point_y = _mm512_abs_pd(_mm512_set1_pd(point.y));
     const __m512d point_coords = _mm512_mask_blend_pd((170), point_x, point_y);
 
+    Debug_print8(point_coords);
+
     const __m512d packed_normal_box = _mm512_load_pd(packed_h_normal_box.boxes.data());
+
+    Debug_print8(packed_normal_box);
+
     __m512d difference = _mm512_sub_pd(point_coords, packed_normal_box);
+
+    Debug_print8(difference);
 
     const __mmask8 mask_xy_inside = _mm512_cmple_pd_mask(difference, _mm512_setzero_pd());
     const __mmask8 mask_xy_inside_x = _kshiftri_mask8(mask_xy_inside, 1);
@@ -58,7 +75,9 @@ SquaredDeepDistancePacked_avx(const Point& point, const PackedHNormalBox& packed
     const __m512d difference_y = _mm512_permute_pd(difference, 255);
 
     __m512d ans = _mm512_min_pd(difference, difference_shuffled);
+    Debug_print8(ans);
     ans = _mm512_mul_pd(ans, _mm512_set1_pd(-1.0));
+    Debug_print8(ans);
     ans = _mm512_mask_mov_pd(ans, mask_x_inside, difference_x);
     ans = _mm512_mask_mov_pd(ans, mask_y_inside, difference_y);
     difference = _mm512_maskz_add_pd(mask_no_inside, difference, _mm512_permute_pd(difference, 85));
