@@ -7,7 +7,7 @@ double SquaredDeepDistance_cpp(const Point& point, const NormalBox& normal_box) 
     if (y_dis < 0) {
         if (x_dis < 0) {
             const double t = std::min(abs(x_dis), abs(y_dis));
-            return -1.0 * t * t;
+            return t * t;
         }
         return x_dis * x_dis;
     }
@@ -58,7 +58,7 @@ SquaredDeepDistancePacked_avx(const Point& point, const PackedHNormalBox& packed
     const __m512d difference_y = _mm512_permute_pd(difference, 255);
 
     __m512d ans = _mm512_min_pd(difference, difference_shuffled);
-    ans = _mm512_mul_pd(ans, _mm512_set1_pd(-1.0));
+    //ans = _mm512_mul_pd(ans, _mm512_set1_pd(-1.0));
     ans = _mm512_mask_mov_pd(ans, mask_x_inside, difference_x);
     ans = _mm512_mask_mov_pd(ans, mask_y_inside, difference_y);
     difference = _mm512_maskz_add_pd(mask_no_inside, difference, _mm512_permute_pd(difference, 85));
