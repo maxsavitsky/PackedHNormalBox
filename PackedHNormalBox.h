@@ -1,12 +1,13 @@
 #include <array>
+#include <cmath>
+#include <stdio.h>
 
-
-struct Point {
+struct alignas(64) Point {
     double x;
     double y;
 };
 
-struct NormalBox {
+struct alignas(64) NormalBox {
     Point corner;
 };
 
