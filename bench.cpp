@@ -7,6 +7,9 @@
 #include <catch2/catch_test_macros.hpp>
 #include <random>
 
+const uint32_t kTestCasesCount = 128; // should be power of 2 for performance
+constexpr uint32_t kMod = kTestCasesCount - 1;
+
 struct TestCase {
     Point point;
     PackedHNormalBox box;
@@ -32,38 +35,38 @@ std::vector<TestCase> GenerateTestCases(int n) {
 
 TEST_CASE("Bench Distance") {
     BENCHMARK_ADVANCED("Bench Distance, CPP")(Catch::Benchmark::Chronometer meter) {
-        auto cases = GenerateTestCases(meter.runs());
+        auto cases = GenerateTestCases(kTestCasesCount);
 
         meter.measure([&](int i){
-            TestCase& test_case = cases[i];
+            TestCase& test_case = cases[i & kMod];
             return SquaredDeepDistancePacked_cpp(test_case.point, test_case.box);
         });
     };
 
     BENCHMARK_ADVANCED("Bench Distance, AVX")(Catch::Benchmark::Chronometer meter) {
-        auto cases = GenerateTestCases(meter.runs());
+        auto cases = GenerateTestCases(kTestCasesCount);
 
         meter.measure([&](int i){
-            TestCase& test_case = cases[i];
+            TestCase& test_case = cases[i & kMod];
             return SquaredDeepDistancePacked_avx(test_case.point, test_case.box);
         });
     };
 }
 
 TEST_CASE("Bench Distance2") {
-    BENCHMARK_ADVANCED("Bench Distance2, CPP ")(Catch::Benchmark::Chronometer meter) {
-        auto cases = GenerateTestCases(meter.runs());
+    BENCHMARK_ADVANCED("Bench Distance2, CPP")(Catch::Benchmark::Chronometer meter) {
+        auto cases = GenerateTestCases(kTestCasesCount);
 
         meter.measure([&](int i){
-            TestCase& test_case = cases[i];
+            TestCase& test_case = cases[i & kMod];
             return SquaredDistancePacked_cpp(test_case.point, test_case.box);
         });
     };
     BENCHMARK_ADVANCED("Bench Distance2, AVX")(Catch::Benchmark::Chronometer meter) {
-        auto cases = GenerateTestCases(meter.runs());
+        auto cases = GenerateTestCases(kTestCasesCount);
 
         meter.measure([&](int i){
-            TestCase& test_case = cases[i];
+            TestCase& test_case = cases[i & kMod];
             return SquaredDistancePacked_avx(test_case.point, test_case.box);
         });
     };
