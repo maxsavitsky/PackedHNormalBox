@@ -92,7 +92,7 @@ SquaredDeepDistancePacked_avx(const Point& point, const PackedHNormalBox& packed
     Debug_print8(ans);
 
     std::array<double, 8> not_answer{};
-    _mm512_mask_store_pd(not_answer.data(), 0b10101010, ans);
+    _mm512_store_pd(not_answer.data(), ans);
     std::array<double, 4> answer = {not_answer[0], not_answer[2], not_answer[4], not_answer[6]};
     std::cout << answer[0] << " " << answer[1] << " " << answer[2] << " " << answer[3] << '\n';
     return answer;
