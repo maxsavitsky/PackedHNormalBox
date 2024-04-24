@@ -39,7 +39,7 @@ SquaredDistancePacked_avx(const Point& point, const PackedHNormalBox& packed_h_n
 
     std::array<double, 8> not_answer{};
     _mm512_store_pd(not_answer.data(), difference);
-    std::array<double, 4> answer = {not_answer[0], not_answer[2], not_answer[4], not_answer[6]};
+    std::array<double, 4> answer = {not_answer[1], not_answer[3], not_answer[5], not_answer[7]};
 
     return answer;
 }
