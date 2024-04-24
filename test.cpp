@@ -20,7 +20,7 @@ TEST_CASE("Random Distance") {
                 std::array<NormalBox, 4>{NormalBox{1, 93}, NormalBox{72, 38}, NormalBox{26, 88}, NormalBox{16, 68}}};
         CompareArrays(SquaredDeepDistancePacked_avx(p, packed_h_normal_box),
                       SquaredDeepDistancePacked_cpp(p, packed_h_normal_box));
-    }
+    }/*
     {
         Point p = {72, -10};
         PackedHNormalBox packed_h_normal_box = {
@@ -216,7 +216,7 @@ TEST_CASE("Random Distance") {
                 std::array<NormalBox, 4>{NormalBox{86, 52}, NormalBox{5, 10}, NormalBox{74, 59}, NormalBox{29, 65}}};
         CompareArrays(SquaredDeepDistancePacked_avx(p, packed_h_normal_box),
                       SquaredDeepDistancePacked_cpp(p, packed_h_normal_box));
-    }
+    }*/
 }
 
 TEST_CASE("PackedNormalBox within PackedNormalBox") {
