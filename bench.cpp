@@ -32,24 +32,24 @@ std::vector<TestCase> GenerateTestCases(int n) {
 
 TEST_CASE("Bench CPP") {
     BENCHMARK_ADVANCED("Bench Distance, CPP")(Catch::Benchmark::Chronometer meter) {
-        auto cases = GenerateTestCases(meter.runs());
+            auto cases = GenerateTestCases(meter.runs());
 
-        meter.measure([&](int i){
-            TestCase& test_case = cases[i];
-            return SquaredDeepDistancePacked_cpp(test_case.point, test_case.box);
-        });
-    };
+            meter.measure([&](int i){
+                TestCase& test_case = cases[i];
+                return SquaredDeepDistancePacked_cpp(test_case.point, test_case.box);
+            });
+        };
 }
 
 TEST_CASE("Bench AVX"){
     BENCHMARK_ADVANCED("Bench Distance, AVX")(Catch::Benchmark::Chronometer meter) {
-        auto cases = GenerateTestCases(meter.runs());
+            auto cases = GenerateTestCases(meter.runs());
 
-        meter.measure([&](int i){
-            TestCase& test_case = cases[i];
-            return SquaredDeepDistancePacked_avx(test_case.point, test_case.box);
-        });
-    };
+            meter.measure([&](int i){
+                TestCase& test_case = cases[i];
+                return SquaredDeepDistancePacked_avx(test_case.point, test_case.box);
+            });
+        };
 }
 
 TEST_CASE("Bench_2 CPP") {
