@@ -4,10 +4,11 @@
 #include "Within.h"
 
 #include <catch2/catch_test_macros.hpp>
-
+#include <iostream>
 
 void CompareArrays(std::array<double, 4> a, std::array<double, 4> b) {
     for (size_t i = 0; i < a.size(); ++i) {
+        std::cout << a.at(i) << " " << b.at(i) << std::endl;
         REQUIRE(std::abs(a.at(i) - b.at(i)) <= 1e-5);
     }
 }
