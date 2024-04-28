@@ -27,7 +27,6 @@ SquaredDistancePackedOld_avx(const Point& point, const PackedHNormalBox& packed_
 
     __m512d difference = _mm512_abs_pd(_mm512_sub_pd(point_coords, packed_normal_box));
     const __m512d sum = _mm512_abs_pd(_mm512_add_pd(point_coords, packed_normal_box));
-
     difference = _mm512_add_pd(difference, sum);
     difference = _mm512_sub_pd(difference, packed_normal_box);
     difference = _mm512_sub_pd(difference, packed_normal_box);
@@ -41,7 +40,6 @@ SquaredDistancePackedOld_avx(const Point& point, const PackedHNormalBox& packed_
     alignas(64) std::array<double, 8> not_answer{};
     _mm512_mask_store_pd(not_answer.data(), 0b01010101, difference);
     std::array<double, 4> answer = {not_answer[0], not_answer[2], not_answer[4], not_answer[6]};
-
     return answer;
 }
 
@@ -55,6 +53,7 @@ SquaredDistancePacked_avx(const Point& point, const PackedHNormalBox& packed_h_n
     __m512d difference = _mm512_sub_pd(point_coords, packed_normal_box);
     __m512d zeros = _mm512_setzero_pd();
     difference = _mm512_max_pd(difference, zeros);
+
     difference = _mm512_mul_pd(difference, difference);
     const __m512d sum_dif_shuffled = _mm512_permute_pd(difference, 0b01010101);
     difference = _mm512_add_pd(difference, sum_dif_shuffled);
@@ -62,6 +61,5 @@ SquaredDistancePacked_avx(const Point& point, const PackedHNormalBox& packed_h_n
     alignas(64) std::array<double, 8> not_answer{};
     _mm512_mask_store_pd(not_answer.data(), 0b01010101, difference);
     std::array<double, 4> answer = {not_answer[0], not_answer[2], not_answer[4], not_answer[6]};
-
     return answer;
 }

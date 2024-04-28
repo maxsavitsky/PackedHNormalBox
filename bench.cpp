@@ -34,7 +34,7 @@ std::vector<TestCase> GenerateTestCases(int n) {
 }
 
 
-TEST_CASE("Bench Distance") {
+TEST_CASE("Bench Deep Distance") {
     BENCHMARK_ADVANCED("Bench Deep Distance, CPP")(Catch::Benchmark::Chronometer meter) {
             auto cases = GenerateTestCases(kTestCasesCount);
 
@@ -44,7 +44,7 @@ TEST_CASE("Bench Distance") {
             });
         };
 
-    BENCHMARK_ADVANCED("Bench Deep Distance, AVX")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("Bench Deep Distance, AVX512")(Catch::Benchmark::Chronometer meter) {
             auto cases = GenerateTestCases(kTestCasesCount);
 
             meter.measure([&](int i) {
@@ -54,7 +54,7 @@ TEST_CASE("Bench Distance") {
         };
 }
 
-TEST_CASE("Bench Distance2") {
+TEST_CASE("Bench Distance") {
     BENCHMARK_ADVANCED("Bench Distance, CPP")(Catch::Benchmark::Chronometer meter) {
             auto cases = GenerateTestCases(kTestCasesCount);
 
@@ -63,7 +63,7 @@ TEST_CASE("Bench Distance2") {
                 return SquaredDistancePacked_cpp(test_case.point, test_case.box);
             });
         };
-    BENCHMARK_ADVANCED("Bench Distance Old, AVX")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("Bench Distance Old, AVX512")(Catch::Benchmark::Chronometer meter) {
             auto cases = GenerateTestCases(kTestCasesCount);
 
             meter.measure([&](int i) {
@@ -71,7 +71,7 @@ TEST_CASE("Bench Distance2") {
                 return SquaredDistancePackedOld_avx(test_case.point, test_case.box);
             });
         };
-    BENCHMARK_ADVANCED("Bench Distance, AVX")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("Bench Distance, AVX512")(Catch::Benchmark::Chronometer meter) {
             auto cases = GenerateTestCases(kTestCasesCount);
 
             meter.measure([&](int i) {
@@ -90,7 +90,7 @@ TEST_CASE("Bench Within") {
         return WithinPacked_cpp(case1.box, case2.box);
     };
 
-    BENCHMARK("Bench Within, AVX", i) {
+    BENCHMARK("Bench Within, AVX512", i) {
         const TestCase &case1 = cases1[i & kMod];
         const TestCase &case2 = cases2[i & kMod];
         return WithinPacked_avx(case1.box, case2.box);
