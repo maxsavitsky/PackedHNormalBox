@@ -52,7 +52,7 @@ SquaredDistancePacked_avx(const Point& point, const PackedHNormalBox& packed_h_n
     const __m512d point_coords = _mm512_mask_blend_pd((0b10101010), point_x, point_y);
     const __m512d packed_normal_box = _mm512_load_pd(packed_h_normal_box.boxes.data());
 
-    __m512d difference = _mm512_abs_pd(_mm512_sub_pd(point_coords, packed_normal_box));
+    __m512d difference = _mm512_sub_pd(point_coords, packed_normal_box);
     __m512d zeros = _mm512_setzero_pd();
     difference = _mm512_max_pd(difference, zeros);
     difference = _mm512_mul_pd(difference, difference);
