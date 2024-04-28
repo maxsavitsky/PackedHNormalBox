@@ -35,7 +35,7 @@ std::vector<TestCase> GenerateTestCases(int n) {
 
 
 TEST_CASE("Bench Distance") {
-    BENCHMARK_ADVANCED("Bench Distance, CPP")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("Bench Deep Distance, CPP")(Catch::Benchmark::Chronometer meter) {
             auto cases = GenerateTestCases(kTestCasesCount);
 
             meter.measure([&](int i) {
@@ -44,7 +44,7 @@ TEST_CASE("Bench Distance") {
             });
         };
 
-    BENCHMARK_ADVANCED("Bench Distance, AVX")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("Bench Deep Distance, AVX")(Catch::Benchmark::Chronometer meter) {
             auto cases = GenerateTestCases(kTestCasesCount);
 
             meter.measure([&](int i) {
@@ -55,7 +55,7 @@ TEST_CASE("Bench Distance") {
 }
 
 TEST_CASE("Bench Distance2") {
-    BENCHMARK_ADVANCED("Bench Distance2, CPP")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("Bench Distance, CPP")(Catch::Benchmark::Chronometer meter) {
             auto cases = GenerateTestCases(kTestCasesCount);
 
             meter.measure([&](int i) {
@@ -63,7 +63,15 @@ TEST_CASE("Bench Distance2") {
                 return SquaredDistancePacked_cpp(test_case.point, test_case.box);
             });
         };
-    BENCHMARK_ADVANCED("Bench Distance2, AVX")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("Bench Distance Old, AVX")(Catch::Benchmark::Chronometer meter) {
+            auto cases = GenerateTestCases(kTestCasesCount);
+
+            meter.measure([&](int i) {
+                TestCase &test_case = cases[i & kMod];
+                return SquaredDistancePackedOld_avx(test_case.point, test_case.box);
+            });
+        };
+    BENCHMARK_ADVANCED("Bench Distance, AVX")(Catch::Benchmark::Chronometer meter) {
             auto cases = GenerateTestCases(kTestCasesCount);
 
             meter.measure([&](int i) {
