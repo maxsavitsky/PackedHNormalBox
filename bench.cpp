@@ -63,7 +63,7 @@ TEST_CASE("Bench Distance") {
                 return SquaredDistancePacked_cpp(test_case.point, test_case.box);
             });
         };
-    BENCHMARK_ADVANCED("Bench Distance Old, AVX512")(Catch::Benchmark::Chronometer meter) {
+    BENCHMARK_ADVANCED("Bench Distance Alesia Method, AVX512")(Catch::Benchmark::Chronometer meter) {
             auto cases = GenerateTestCases(kTestCasesCount);
 
             meter.measure([&](int i) {
