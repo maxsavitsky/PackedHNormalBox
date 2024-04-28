@@ -19,7 +19,7 @@ SquaredDistancePacked_cpp(const Point& point, const PackedHNormalBox& packed_h_n
 }
 
 extern "C" std::array<double, 4>
-SquaredDistancePackedOld_avx(const Point& point, const PackedHNormalBox& packed_h_normal_box) {
+SquaredDistanceAlesiaPacked_avx(const Point& point, const PackedHNormalBox& packed_h_normal_box) {
     const __m512d point_x = _mm512_set1_pd(point.x);
     const __m512d point_y = _mm512_set1_pd(point.y);
     const __m512d point_coords = _mm512_mask_blend_pd((0b10101010), point_x, point_y);
